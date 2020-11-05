@@ -12,34 +12,34 @@ this	DEFB " this year\n\0"
 	ALIGN
 
 	; present = 2020 // Change this code DONE
-present DEFW 2020
+R4 DEFW 2020
 	; birth = 2002   // Change this code DONE
-birth DEFW 2002
+R5 DEFW 2002
 	; year = 0       // Change this code DONE
-     year DEFW 0
+     R6 DEFW 0
 
 	; age = 1        // Change this code DONE
-      age DEFW 1
+      R7 DEFW 1
 
 
 main
 	; this code does print "you were born in " + str(birth) // DO NOT change the instructions below (except for part 5)
 	ADR R0, born
 	SVC 3
-	LDR R0, birth ; make sure this will work!
+	LDR R0, R5 ; make sure this will work!
 	SVC 4
 	MOV R0, #10
 	SVC 0
 
 	; year = birth + 1 // Change this code DONE
-    LDR R1, birth
+    LDR R1, R5
     ADD R1, R1, #1
-    STR R1, year
+    STR R1, R6
 
 	; while year != present //{ Change this code
-    LDR R1, year
-    LDR R2, present
-    LDR R3, age
+    LDR R1, R6
+    LDR R2, R4
+    LDR R3, R7
 start  CMP R1, R2
     BNE jump
     B skip
@@ -47,21 +47,21 @@ start  CMP R1, R2
 	; this code does print "you were " + str(age) + " in " + str(year) // DO NOT change the instructions below (except for part 5)
 jump	ADR R0, were
 	SVC 3
-	LDR R0, age ; make sure this will work!
+	LDR R0, R7 ; make sure this will work!
 	SVC 4
 	ADR R0, in
 	SVC 3
-	LDR R0, year ; make sure this will work!
+	LDR R0, R6 ; make sure this will work!
 	SVC 4
 	MOV R0, #10
 	SVC 0
 
 
     ADD R1, R1, #1
-    STR R1, year
+    STR R1, R6
 
     ADD R3, R3, #1
-    STR R3, age
+    STR R3, R7
     B start
 	;   year = year + 1 //Change this code
 	;   age = age + 1   //Change this code
@@ -72,7 +72,7 @@ jump	ADR R0, were
 	; this code does print "you are " + str(age) + "this year" // DO NOT change the instructions below (except for part 5)
 skip	ADR R0, are
 	SVC 3
-	LDR R0, age ; make sure this will work!
+	LDR R0, R7 ; make sure this will work!
 	SVC 4
 	ADR R0, this
 	SVC 3

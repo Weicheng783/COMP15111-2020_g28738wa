@@ -11,14 +11,14 @@ main	ADR	R0, hello	; printf("Hello ")
 
 	; while R0 != 10 {// translate to ARM code
 start CMP R0, #10
-  BNE gostraight
-	B skip
-gostraight	SVC	1		; input a character to R0
+  BNE jump
+
+     ADR	R0, goodbye 	; printf("and good-bye!")
+	 SVC	3
+
+	 SVC  	2		; stop the program
+
+jump	SVC	1		; input a character to R0
 	          SVC	0		; output the character in R0
             B start
 	; }// translate to ARM code
-
-skip	ADR	R0, goodbye 	; printf("and good-bye!")
-	SVC	3
-
-	SVC  	2		; stop the program
