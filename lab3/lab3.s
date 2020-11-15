@@ -1,4 +1,4 @@
-	B part1 ; part1 or part2 or part3
+	B part3 ; part1 or part2 or part3
 
 buffer	DEFS 100,0
 
@@ -23,24 +23,74 @@ s9	DEFB "twenty\0"
 
 ;************************** part 1 **************************
 printstring
-	MOV  R0,R1	; given
-	SVC  3		; given
+	;MOV  R0,R1	; given
+	;SVC  3		; given
+
+   loop LDRB R0, [R1], #1
+     CMP R0, #0
+     SVCNE 0
+     BNE loop
+
 ; your code goes here, replacing the previous 2 lines
-	MOV  R0, #10	; given - output end-of-line
+    
+    MOV  R0, #10	; given - output end-of-line
 	SVC  0		; given
 	MOV  PC, LR	; given
 
 ;************************** part 2 ***************************
 strcat
+    find LDRB R0, [R1, R3]
+         ADD R3, R3, #1
+         CMP R0, #0
+         BNE find
+        SUB R3, R3, #1
+ 
+    cat LDRB R0, [R2], #1
+        STRB R0, [R1, R3]
+        ADD R3, R3, #1
+        CMP R0, #0
+        BNE cat
+        MOV R3, #0
+
 ; your code goes here
 	MOV  PC, LR
 
-strcpy
+strcpy 
+         MOV R3, #0
+    loops 
+         LDRB R0, [R2], #1
+         STRB R0, [R1, R3]
+         ADD R3, R3, #1
+         CMP R0, #0
+         BNE loops
+         MOV R3, #0
+
 ; your code goes here
 	MOV  PC, LR
 
 ;************************** part 3 **************************
 sorted	STR LR, return2	; given
+        BL search
+
+search
+
+  LDRB R4, [R2], #1
+  LDRB R5, [R3], #1
+
+  CMP R4, R5
+  BNE exits
+  BEQ checkzero
+
+checkzero
+  CMP R5, #0
+  BEQ exits
+  BNE search
+
+  CMP R4, #0
+  BEQ exits
+  BNE search
+
+ exits CMP R4, R5
 ; your code goes here
 	LDR  PC, return2 ; given
 return2 DEFW 0		; given
