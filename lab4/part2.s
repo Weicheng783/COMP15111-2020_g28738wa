@@ -43,37 +43,39 @@ printAgeHistory	;PUSH	{R6}			; callee saves three registers
 		;PUSH	{R5}
 		;PUSH	{R4}
         
-        LDMFD SP!, {R2}
-        LDMFD SP!, {R1}
-        LDMFD SP!, {R6}
-		;LDR	R6, [SP, #(3 + 2) * 4]	; Get parameters from stack : pDay +20
-		;LDR	R1, [SP, #(3 + 1) * 4] ;pMon +16
-		;LDR	R2, [SP, #(3 + 0) * 4] ;2000 +12
+        ;LDMFD SP!, {R2}
+        ;LDMFD SP!, {R1}
+        ;LDMFD SP!, {R6}
+		;LDR	R6, R7	; Get parameters from stack : pDay +20 R4
+		;LDR	R1, R8 ;pMon +16 R5
+		;LDR	R2, R9 ;2000 +12 R6
 
 ;   year = bYear + 1
-		ADD	R4, R2, #1; 2000+1
+		;ADD	R4, R2, #1; 2000+1
+        ADD R6, R6, #1
 ;   age = 1;
-		MOV	R5, #1; age
+		;MOV	R5, #1; age
+        MOV R1, #1 ;age
 
 ; print("This person was born on " + str(bDay) + "/" + str(bMonth) + "/" + str(bYear))
 		ADRL	R0, wasborn
 		SVC	print_str
+		MOV	R0, R4
+		SVC	print_no
+		MOV	R0, #'/'
+		SVC	print_char
+		MOV	R0, R5
+		SVC	print_no
+		MOV	R0, #'/'
+		SVC	print_char
 		MOV	R0, R6
-		SVC	print_no
-		MOV	R0, #'/'
-		SVC	print_char
-		MOV	R0, R1
-		SVC	print_no
-		MOV	R0, #'/'
-		SVC	print_char
-		MOV	R0, R2
 		SVC	print_no
 		MOV	R0, #cLF
 		SVC	print_char
 
 ; this code does: while year < pYear //{
 loop1	LDR	R0, pYear
-		CMP	R4, R0
+		CMP	R6, R0
 		BHS	end1		; Years are unsigned
 ; for part 4, should be changed to:
 ; while year < pYear or
@@ -83,27 +85,27 @@ loop1	LDR	R0, pYear
 ;  print("This person was " + str(age) + " on " + str(bDay) + "/" + str(bMonth) + "/" + str(year))
 		ADRL	R0, was
 		SVC	print_str
-		MOV	R0, R5
+		MOV	R0, R1
 		SVC	print_no
 		ADRL	R0, on
 		SVC	print_str
-		MOV	R0, R6
-		SVC	print_no
-		MOV	R0, #'/'
-		SVC	print_char
-		MOV	R0, R1
-		SVC	print_no
-		MOV	R0, #'/'
-		SVC	print_char
 		MOV	R0, R4
+		SVC	print_no
+		MOV	R0, #'/'
+		SVC	print_char
+		MOV	R0, R5
+		SVC	print_no
+		MOV	R0, #'/'
+		SVC	print_char
+		MOV	R0, R6
 		SVC	print_no
 		MOV	R0, #cLF
 		SVC	print_char
 
 		; year = year + 1
-		ADD	R4, R4, #1
+		ADD	R6, R6, #1
 		; age = age + 1
-		ADD	R5, R5, #1
+		ADD	R1, R1, #1
 		; //}
 		B	loop1
 
@@ -112,13 +114,13 @@ end1
 ; for part 4, should be changed to:
 ; if (bMonth == pMonth and bDay == pDay):
 		LDR	R0, pMonth
-		CMP	R1, R0
+		CMP	R5, R0
 		BNE	else1
 
 ; print("This person is " + str(age) + " today!")
 		ADRL	R0, is
 		SVC	print_str
-		MOV	R0, R5
+		MOV	R0, R1
 		SVC	print_no
 		ADRL	R0, today
 		SVC	print_str
@@ -132,19 +134,19 @@ else1
 ; print("This person will be " + str(age) + " on " + str(bDay) + "/" + str(bMonth) + "/" + str(year))
 		ADRL	R0, willbe
 		SVC	print_str
-		MOV	R0, R5
+		MOV	R0, R1
 		SVC	print_no
 		ADRL	R0, on
 		SVC	print_str
-		MOV	R0, R6
-		SVC	print_no
-		MOV	R0, #'/'
-		SVC	print_char
-		MOV	R0, R1
-		SVC	print_no
-		MOV	R0, #'/'
-		SVC	print_char
 		MOV	R0, R4
+		SVC	print_no
+		MOV	R0, #'/'
+		SVC	print_char
+		MOV	R0, R5
+		SVC	print_no
+		MOV	R0, #'/'
+		SVC	print_char
+		MOV	R0, R6
 		SVC	print_no
 		MOV	R0, #cLF
 		SVC	print_char
@@ -169,15 +171,15 @@ main
     STMFD SP!, {R4-R6}
 
 ; printAgeHistory(pDay, pMonth, 2000)
-		LDR	R0, pDay
+		LDR	R4, pDay
 		;PUSH	{R0}			; Stack first parameter
-        STMFD SP!, {R0}
-		LDR	R0, pMonth
+        ;STMFD SP!, {R0}
+		LDR	R5, pMonth
 		;PUSH	{R0}			; Stack second parameter
-        STMFD SP!, {R0}
-		MOV	R0, #2000
+        ;STMFD SP!, {R0}
+		MOV	R6, #2000
 		;PUSH	{R0}			; Stack third parameter
-        STMFD SP!, {R0}
+        ;STMFD SP!, {R0}
 		BL	printAgeHistory
 		;POP	{R0}			; Deallocate three 32-bit variables
 		;POP	{R0}
@@ -190,13 +192,13 @@ main
 		SVC	print_str
 
 ; printAgeHistory(13, 11, 2000)
-		MOV	R0, #13
+		MOV	R4, #13
 		;PUSH	{R0}			; Stack first parameter
-        STMFD SP!, {R0}
-		MOV	R0, #11
-		STR	R0, [SP, #-4]!		; An explicit coding of PUSH
-		MOV	R0, #2000
-		STMFD	SP!, {R0}		; The STore Multiple mnemonic for PUSH {R0}
+        ;STMFD SP!, {R0}
+		MOV	R5, #11
+		;STR	R0, [SP, #-4]!		; An explicit coding of PUSH
+		MOV	R6, #2000
+		;STMFD	SP!, {R0}		; The STore Multiple mnemonic for PUSH {R0}
 		BL	printAgeHistory
 		;POP	{R0}			; Deallocate three 32-bit variables
 		;POP	{R0}

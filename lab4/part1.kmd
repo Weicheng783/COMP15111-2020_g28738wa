@@ -1,0 +1,304 @@
+KMD
+00000000:             ; ; COMP15111 lab 4 - Template file
+00000000:             ; 
+00000000:             ; print_char      equ     0               ; Define names to aid readability
+00000000:             ; stop            equ     2
+00000000:             ; print_str       equ     3
+00000000:             ; print_no        equ     4
+00000000:             ; 
+00000000:             ; cLF             equ     10              ; Line-feed character
+00000000:             ; 
+00000000:             ; 
+00000000: E28FD064    ;                 ADR     SP, _stack      ; set SP pointing to the end of our stack
+00000004: EA000082    ;                 B       main
+00000008:             ; 
+00000008:             ;                 DEFS    100             ; this chunk of memory is for the stack
+0000006C:             ; _stack                                  ; This label is 'just after' the stack space
+0000006C:             ; 
+0000006C:             ; 
+0000006C: 54 68 69 73 ; wasborn         DEFB    "This person was born on ",0
+00000070: 20 70 65 72 ; 
+00000074: 73 6F 6E 20 ; 
+00000078: 77 61 73 20 ; 
+0000007C: 62 6F 72 6E ; 
+00000080: 20 6F 6E 20 ; 
+00000084: 00          ; 
+00000085: 54 68 69 73 ; was             DEFB    "This person was ",0
+00000089: 20 70 65 72 ; 
+0000008D: 73 6F 6E 20 ; 
+00000091: 77 61 73 20 ; 
+00000095: 00          ; 
+00000096: 20 6F 6E 20 ; on              DEFB    " on ",0
+0000009A: 00          ; 
+0000009B: 54 68 69 73 ; is              DEFB    "This person is ",0
+0000009F: 20 70 65 72 ; 
+000000A3: 73 6F 6E 20 ; 
+000000A7: 69 73 20 00 ; 
+000000AB: 20 74 6F 64 ; today           DEFB    " today!",0
+000000AF: 61 79 21 00 ; 
+000000B3: 54 68 69 73 ; willbe          DEFB    "This person will be ",0
+000000B7: 20 70 65 72 ; 
+000000BB: 73 6F 6E 20 ; 
+000000BF: 77 69 6C 6C ; 
+000000C3: 20 62 65 20 ; 
+000000C7: 00          ; 
+000000C8:             ;                 ALIGN
+000000C8:             ; 
+000000C8: 00000017    ; pDay              DEFW  23              ;  pDay = 23    //or whatever is today's date
+000000CC: 0000000B    ; pMonth          DEFW    11              ;  pMonth = 11  //or whatever is this month
+000000D0: 000007D5    ; pYear             DEFW  2005    ;  pYear = 2005 //or whatever is this year
+000000D4:             ; 
+000000D4:             ; 
+000000D4:             ; ; def printAgeHistory (bDay, bMonth, bYear)
+000000D4:             ; 
+000000D4:             ; ; parameters
+000000D4:             ; ;  R0 = bDay (on entry, moved to R6 to allow SVC to output via R0)
+000000D4:             ; ;  R1 = bMonth
+000000D4:             ; ;  R2 = bYear
+000000D4:             ; ; local variables (callee-saved registers)
+000000D4:             ; ;  R4 = year
+000000D4:             ; ;  R5 = age
+000000D4:             ; ;  R6 = bDay - originally R0
+000000D4:             ; 
+000000D4:             ; printAgeHistory ;PUSH   {R6}                    ; callee saves three registers
+000000D4:             ;                 ;PUSH   {R5}
+000000D4:             ;                 ;PUSH   {R4}
+000000D4:             ;         
+000000D4: E8BD0004    ;         LDMFD SP!, {R2}
+000000D8: E8BD0002    ;         LDMFD SP!, {R1}
+000000DC: E8BD0040    ;         LDMFD SP!, {R6}
+000000E0:             ;                 ;LDR    R6, [SP, #(3 + 2) * 4]  ; Get parameters from stack : pDay +20
+000000E0:             ;                 ;LDR    R1, [SP, #(3 + 1) * 4] ;pMon +16
+000000E0:             ;                 ;LDR    R2, [SP, #(3 + 0) * 4] ;2000 +12
+000000E0:             ; 
+000000E0:             ; ;   year = bYear + 1
+000000E0: E2824001    ;                 ADD     R4, R2, #1; 2000+1
+000000E4:             ; ;   age = 1;
+000000E4: E3A05001    ;                 MOV     R5, #1; age
+000000E8:             ; 
+000000E8:             ; ; print("This person was born on " + str(bDay) + "/" + str(bMonth) + "/" + str(bYear))
+000000E8: E24F0084    ;                 ADRL    R0, wasborn
+000000EC: EF000003    ;                 SVC     print_str
+000000F0: E1A00006    ;                 MOV     R0, R6
+000000F4: EF000004    ;                 SVC     print_no
+000000F8: E3A0002F    ;                 MOV     R0, #'/'
+000000FC: EF000000    ;                 SVC     print_char
+00000100: E1A00001    ;                 MOV     R0, R1
+00000104: EF000004    ;                 SVC     print_no
+00000108: E3A0002F    ;                 MOV     R0, #'/'
+0000010C: EF000000    ;                 SVC     print_char
+00000110: E1A00002    ;                 MOV     R0, R2
+00000114: EF000004    ;                 SVC     print_no
+00000118: E3A0000A    ;                 MOV     R0, #cLF
+0000011C: EF000000    ;                 SVC     print_char
+00000120:             ; 
+00000120:             ; ; this code does: while year < pYear //{
+00000120: E51F0058    ; loop1   LDR     R0, pYear
+00000124: E1540000    ;                 CMP     R4, R0
+00000128: 2A000014    ;                 BHS     end1            ; Years are unsigned
+0000012C:             ; ; for part 4, should be changed to:
+0000012C:             ; ; while year < pYear or
+0000012C:             ; ;                               (year == pYear and bMonth < pMonth) or
+0000012C:             ; ;                               (year == pYear and bMonth == pMonth and bDay < pDay):
+0000012C:             ; 
+0000012C:             ; ;  print("This person was " + str(age) + " on " + str(bDay) + "/" + str(bMonth) + "/" + str(yea
+                      ; r))
+0000012C: E24F00AF    ;                 ADRL    R0, was
+00000130: EF000003    ;                 SVC     print_str
+00000134: E1A00005    ;                 MOV     R0, R5
+00000138: EF000004    ;                 SVC     print_no
+0000013C: E24F00AE    ;                 ADRL    R0, on
+00000140: EF000003    ;                 SVC     print_str
+00000144: E1A00006    ;                 MOV     R0, R6
+00000148: EF000004    ;                 SVC     print_no
+0000014C: E3A0002F    ;                 MOV     R0, #'/'
+00000150: EF000000    ;                 SVC     print_char
+00000154: E1A00001    ;                 MOV     R0, R1
+00000158: EF000004    ;                 SVC     print_no
+0000015C: E3A0002F    ;                 MOV     R0, #'/'
+00000160: EF000000    ;                 SVC     print_char
+00000164: E1A00004    ;                 MOV     R0, R4
+00000168: EF000004    ;                 SVC     print_no
+0000016C: E3A0000A    ;                 MOV     R0, #cLF
+00000170: EF000000    ;                 SVC     print_char
+00000174:             ; 
+00000174:             ;                 ; year = year + 1
+00000174: E2844001    ;                 ADD     R4, R4, #1
+00000178:             ;                 ; age = age + 1
+00000178: E2855001    ;                 ADD     R5, R5, #1
+0000017C:             ;                 ; //}
+0000017C: EAFFFFE7    ;                 B       loop1
+00000180:             ; 
+00000180:             ; end1
+00000180:             ; ; this code does: if (bMonth == pMonth):
+00000180:             ; ; for part 4, should be changed to:
+00000180:             ; ; if (bMonth == pMonth and bDay == pDay):
+00000180: E51F00BC    ;                 LDR     R0, pMonth
+00000184: E1510000    ;                 CMP     R1, R0
+00000188: 1A000008    ;                 BNE     else1
+0000018C:             ; 
+0000018C:             ; ; print("This person is " + str(age) + " today!")
+0000018C: E24F00F9    ;                 ADRL    R0, is
+00000190: EF000003    ;                 SVC     print_str
+00000194: E1A00005    ;                 MOV     R0, R5
+00000198: EF000004    ;                 SVC     print_no
+0000019C: E24F00F9    ;                 ADRL    R0, today
+000001A0: EF000003    ;                 SVC     print_str
+000001A4: E3A0000A    ;                 MOV     R0, #cLF
+000001A8: EF000000    ;                 SVC     print_char
+000001AC:             ; 
+000001AC:             ; ; else
+000001AC: EA000013    ;                 B       end2
+000001B0:             ;         ;MOV    PC, LR
+000001B0:             ; else1
+000001B0:             ; ; print("This person will be " + str(age) + " on " + str(bDay) + "/" + str(bMonth) + "/" + str(
+                      ; year))
+000001B0: E24F0005    ;                 ADRL    R0, willbe
+000001B4: E2400C01    ; 
+000001B8: EF000003    ;                 SVC     print_str
+000001BC: E1A00005    ;                 MOV     R0, R5
+000001C0: EF000004    ;                 SVC     print_no
+000001C4: E24F0036    ;                 ADRL    R0, on
+000001C8: E2400C01    ; 
+000001CC: EF000003    ;                 SVC     print_str
+000001D0: E1A00006    ;                 MOV     R0, R6
+000001D4: EF000004    ;                 SVC     print_no
+000001D8: E3A0002F    ;                 MOV     R0, #'/'
+000001DC: EF000000    ;                 SVC     print_char
+000001E0: E1A00001    ;                 MOV     R0, R1
+000001E4: EF000004    ;                 SVC     print_no
+000001E8: E3A0002F    ;                 MOV     R0, #'/'
+000001EC: EF000000    ;                 SVC     print_char
+000001F0: E1A00004    ;                 MOV     R0, R4
+000001F4: EF000004    ;                 SVC     print_no
+000001F8: E3A0000A    ;                 MOV     R0, #cLF
+000001FC: EF000000    ;                 SVC     print_char
+00000200:             ; 
+00000200:             ; ; }// end of printAgeHistory
+00000200:             ; end2            ;POP    {R4}            ; callee saved registers
+00000200:             ;                 ;POP    {R5}
+00000200:             ;                 ;POP    {R6}
+00000200:             ;         ;LDMFD SP!, {R4}
+00000200:             ;         ;LDMFD SP!, {R5}
+00000200:             ;         ;LDMFD SP!, {R6}
+00000200: E1A0F00E    ;                 MOV     PC, LR
+00000204:             ; 
+00000204: 41 6E 6F 74 ; another         DEFB    "Another person",10,0
+00000208: 68 65 72 20 ; 
+0000020C: 70 65 72 73 ; 
+00000210: 6F 6E 0A 00 ; 
+00000214:             ;                 ALIGN
+00000214:             ; 
+00000214:             ; ; def main():
+00000214:             ; main
+00000214: E59F40C8    ;         LDR     R4, =&12345678          ; Test value - not part of Java compilation
+00000218: E1A05004    ;         MOV     R5, R4                  ; See later if these registers corrupted
+0000021C: E1A06004    ;         MOV     R6, R4
+00000220: E92D0070    ;     STMFD SP!, {R4-R6}
+00000224:             ; 
+00000224:             ; ; printAgeHistory(pDay, pMonth, 2000)
+00000224: E51F0164    ;                 LDR     R0, pDay
+00000228:             ;                 ;PUSH   {R0}                    ; Stack first parameter
+00000228: E92D0001    ;         STMFD SP!, {R0}
+0000022C: E51F0168    ;                 LDR     R0, pMonth
+00000230:             ;                 ;PUSH   {R0}                    ; Stack second parameter
+00000230: E92D0001    ;         STMFD SP!, {R0}
+00000234: E3A00E7D    ;                 MOV     R0, #2000
+00000238:             ;                 ;PUSH   {R0}                    ; Stack third parameter
+00000238: E92D0001    ;         STMFD SP!, {R0}
+0000023C: EBFFFFA4    ;                 BL      printAgeHistory
+00000240:             ;                 ;POP    {R0}                    ; Deallocate three 32-bit variables
+00000240:             ;                 ;POP    {R0}
+00000240:             ;                 ;POP    {R0}
+00000240:             ; 
+00000240:             ; 
+00000240:             ; 
+00000240:             ; ; print("Another person");
+00000240: E24F0044    ;                 ADRL    R0, another
+00000244: EF000003    ;                 SVC     print_str
+00000248:             ; 
+00000248:             ; ; printAgeHistory(13, 11, 2000)
+00000248: E3A0000D    ;                 MOV     R0, #13
+0000024C:             ;                 ;PUSH   {R0}                    ; Stack first parameter
+0000024C: E92D0001    ;         STMFD SP!, {R0}
+00000250: E3A0000B    ;                 MOV     R0, #11
+00000254: E52D0004    ;                 STR     R0, [SP, #-4]!          ; An explicit coding of PUSH
+00000258: E3A00E7D    ;                 MOV     R0, #2000
+0000025C: E92D0001    ;                 STMFD   SP!, {R0}               ; The STore Multiple mnemonic for PUSH {R0}
+00000260: EBFFFF9B    ;                 BL      printAgeHistory
+00000264:             ;                 ;POP    {R0}                    ; Deallocate three 32-bit variables
+00000264:             ;                 ;POP    {R0}
+00000264:             ;                 ;POP    {R0}
+00000264:             ;         ;LDMFD SP!, {R0}
+00000264:             ;         ;LDMFD SP!, {R0}
+00000264:             ;         ;LDMFD SP!, {R0}
+00000264: E8BD0070    ;         LDMFD SP!, {R4-R6}
+00000268:             ; 
+00000268:             ;         ; Now check to see if register values intact (Not part of Java)
+00000268: E59F0074    ;         LDR     R0, =&12345678          ; Test value
+0000026C: E1540000    ;         CMP     R4, R0                  ; Did you preserve these registers?
+00000270: 01550000    ;         CMPEQ   R5, R0                  ;
+00000274: 01560000    ;         CMPEQ   R6, R0                  ;
+00000278:             ; 
+00000278: 128F0014    ;         ADRLNE  R0, whoops1             ; Oh dear!
+0000027C: 1F000003    ;         SVCNE   print_str               ;
+00000280:             ; 
+00000280: E24F0F87    ;         ADRL    R0, _stack              ; Have you balanced pushes & pops?
+00000284: E15D0000    ;         CMP     SP, R0                  ;
+00000288:             ; 
+00000288: 128F002A    ;         ADRLNE  R0, whoops2             ; Oh no!!
+0000028C: 1F000003    ;         SVCNE   print_str               ; End of test code
+00000290:             ; 
+00000290:             ; ; }// end of main
+00000290: EF000002    ;                 SVC     stop
+00000294:             ; 
+00000294:             ; 
+00000294: 0A 2A 2A 20 ; whoops1         DEFB    "\n** BUT YOU CORRUPTED REGISTERS!  **\n", 0
+00000298: 42 55 54 20 ; 
+0000029C: 59 4F 55 20 ; 
+000002A0: 43 4F 52 52 ; 
+000002A4: 55 50 54 45 ; 
+000002A8: 44 20 52 45 ; 
+000002AC: 47 49 53 54 ; 
+000002B0: 45 52 53 21 ; 
+000002B4: 20 20 2A 2A ; 
+000002B8: 0A 00       ; 
+000002BA: 0A 2A 2A 20 ; whoops2         DEFB    "\n** BUT YOUR STACK DIDN'T BALANCE!  **\n", 0
+000002BE: 42 55 54 20 ; 
+000002C2: 59 4F 55 52 ; 
+000002C6: 20 53 54 41 ; 
+000002CA: 43 4B 20 44 ; 
+000002CE: 49 44 4E 27 ; 
+000002D2: 54 20 42 41 ; 
+000002D6: 4C 41 4E 43 ; 
+000002DA: 45 21 20 20 ; 
+000002DE: 2A 2A 0A 00 ; 
+000002E2:             ; 
+000002E2: 00 00       ; (padding)
+000002E4: 12345678    ; Remaining literals
+
+Symbol Table: Labels
+: print_char                        00000000  Value
+: stop                              00000002  Value
+: print_str                         00000003  Value
+: print_no                          00000004  Value
+: cLF                               0000000A  Value
+: _stack                            0000006C  Local -- ARM
+: wasborn                           0000006C  Local -- ARM
+: was                               00000085  Local -- ARM
+: on                                00000096  Local -- ARM
+: is                                0000009B  Local -- ARM
+: today                             000000AB  Local -- ARM
+: willbe                            000000B3  Local -- ARM
+: pDay                              000000C8  Local -- ARM
+: pMonth                            000000CC  Local -- ARM
+: pYear                             000000D0  Local -- ARM
+: printAgeHistory                   000000D4  Local -- ARM
+: loop1                             00000120  Local -- ARM
+: end1                              00000180  Local -- ARM
+: else1                             000001B0  Local -- ARM
+: end2                              00000200  Local -- ARM
+: another                           00000204  Local -- ARM
+: main                              00000214  Local -- ARM
+: whoops1                           00000294  Local -- ARM
+: whoops2                           000002BA  Local -- ARM
